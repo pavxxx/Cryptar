@@ -1,204 +1,210 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>CryptArithmetic · AI Puzzle Solver</title>
   <meta name="description" content="Solve cryptarithmetic puzzles and watch AI backtracking in action.">
   <link rel="preconnect" href="https://fonts.googleapis.com">
-  <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=JetBrains+Mono:wght@400;700&family=Inter:wght@300;400;500&display=swap" rel="stylesheet">
+  <link
+    href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=JetBrains+Mono:wght@400;700&family=Inter:wght@300;400;500&display=swap"
+    rel="stylesheet">
   <link rel="stylesheet" href="/static/css/style.css">
 </head>
+
 <body>
 
-<!-- ── PARTICLES ─────────────────────────────────────────── -->
-<div id="particles"></div>
-<canvas id="confetti-canvas"></canvas>
+  <!-- ── PARTICLES ─────────────────────────────────────────── -->
+  <div id="particles"></div>
+  <canvas id="confetti-canvas"></canvas>
 
-<!-- ── HEADER ────────────────────────────────────────────── -->
-<header class="site-header">
-  <div class="header-inner">
-    <div class="logo">
-      <span class="logo-icon">∑</span>
-      <span class="logo-text">CryptArithmetic</span>
-    </div>
-    <nav class="tab-nav" role="tablist">
-      <button class="tab-btn active" data-tab="play" role="tab" id="tab-btn-play">
-        <span class="tab-icon">🎮</span> Play &amp; Solve
-      </button>
-      <button class="tab-btn" data-tab="ai" role="tab" id="tab-btn-ai">
-        <span class="tab-icon">🤖</span> AI Learner
-      </button>
-    </nav>
-    <div class="header-stats">
-      <div class="hstat"><span class="hstat-val" id="h-solved">0</span><span class="hstat-lbl">Solved</span></div>
-      <div class="hstat"><span class="hstat-val" id="h-streak">0</span><span class="hstat-lbl">Streak</span></div>
-    </div>
-  </div>
-</header>
-
-<!-- ── TOAST ──────────────────────────────────────────────── -->
-<div id="toast" class="toast"></div>
-
-<!-- ════════════════════════════════════════════════════════ -->
-<!--  TAB 1 — PLAY                                          -->
-<!-- ════════════════════════════════════════════════════════ -->
-<main>
-<section id="panel-play" class="tab-panel active" role="tabpanel">
-  <div class="play-layout">
-
-    <!-- Left: puzzle + inputs -->
-    <div class="play-main">
-      <!-- Equation card -->
-      <div class="card equation-card">
-        <div class="card-label">Current Puzzle</div>
-        <div class="equation-display" id="equation-display">Loading…</div>
-        <div class="equation-rule">Each letter represents a unique digit (0–9). Leading digits ≠ 0.</div>
+  <!-- ── HEADER ────────────────────────────────────────────── -->
+  <header class="site-header">
+    <div class="header-inner">
+      <div class="logo">
+        <span class="logo-text">CryptArithmetic</span>
       </div>
-
-      <!-- Letter inputs -->
-      <div class="card inputs-card">
-        <div class="card-label">Assign Digits to Letters</div>
-        <div class="letter-grid" id="letter-grid"></div>
-      </div>
-
-      <!-- Controls -->
-      <div class="controls-row">
-        <button class="btn btn-ghost" id="btn-hint">💡 Hint</button>
-        <button class="btn btn-ghost" id="btn-undo">↩ Undo</button>
-        <button class="btn btn-ghost" id="btn-check">✓ Check</button>
-        <button class="btn btn-primary" id="btn-new">⟳ New Puzzle</button>
-        <button class="btn btn-ghost" id="btn-custom">✎ Custom</button>
-      </div>
-
-      <!-- Message bar -->
-      <div class="message-bar" id="message-bar" aria-live="polite"></div>
-    </div>
-
-    <!-- Right: sidebar -->
-    <aside class="play-sidebar">
-      <div class="card stat-card">
-        <div class="card-label">Session Stats</div>
-        <div class="stat-row"><span>⏱ Time</span><span class="stat-val mono" id="play-timer">00:00</span></div>
-        <div class="stat-row"><span>💡 Hints</span><span class="stat-val" id="play-hints">0</span></div>
-        <div class="stat-row"><span>⭐ Score</span><span class="stat-val accent" id="play-score">1000</span></div>
-        <div class="stat-row"><span>🧩 Letters</span><span class="stat-val" id="play-letters">—</span></div>
-      </div>
-
-      <div class="card how-card">
-        <div class="card-label">How to Play</div>
-        <ul class="how-list">
-          <li>Each <strong>letter</strong> maps to a unique digit 0–9</li>
-          <li>The <strong>equation</strong> must be arithmetically correct</li>
-          <li>Leading letters <strong>cannot be zero</strong></li>
-          <li>Use <strong>Hint</strong> to reveal one letter</li>
-          <li>Use <strong>AI Learner</strong> tab to watch the solver</li>
-        </ul>
-      </div>
-
-      <div class="card mapping-preview-card">
-        <div class="card-label">Your Mapping</div>
-        <div id="mapping-preview" class="mapping-preview"></div>
-      </div>
-    </aside>
-  </div>
-</section>
-
-<!-- ════════════════════════════════════════════════════════ -->
-<!--  TAB 2 — AI LEARNER                                    -->
-<!-- ════════════════════════════════════════════════════════ -->
-<section id="panel-ai" class="tab-panel" role="tabpanel">
-  <!-- Top control bar -->
-  <div class="ai-topbar card">
-    <div class="ai-topbar-left">
-      <label class="topbar-label">Puzzle</label>
-      <select id="ai-puzzle-select" class="ai-select"></select>
-      <button class="btn btn-ghost btn-sm" id="btn-ai-random">🎲 Random</button>
-    </div>
-    <div class="ai-topbar-right">
-      <label class="topbar-label">Speed</label>
-      <div class="speed-wrap">
-        <span class="mono">Slow</span>
-        <input type="range" id="speed-slider" class="speed-slider" min="1" max="10" value="5">
-        <span class="mono">Fast</span>
-      </div>
-      <button class="btn btn-primary btn-sm" id="btn-ai-start">▶ Start</button>
-      <button class="btn btn-ghost btn-sm" id="btn-ai-pause" disabled>⏸ Pause</button>
-      <button class="btn btn-ghost btn-sm" id="btn-ai-reset">⏹ Reset</button>
-    </div>
-  </div>
-
-  <!-- AI equation display -->
-  <div class="card ai-equation-card">
-    <div id="ai-equation-display" class="equation-display">Select a puzzle above ↑</div>
-    <div class="ai-progress-bar"><div id="ai-progress-fill" class="ai-progress-fill"></div></div>
-    <div class="ai-step-info">
-      Step <span id="ai-step-cur">0</span> / <span id="ai-step-total">0</span>
-      &nbsp;·&nbsp; <span id="ai-step-msg" class="ai-step-msg">—</span>
-    </div>
-  </div>
-
-  <!-- Main 2-column content -->
-  <div class="ai-content">
-    <!-- Left: Mapping + log -->
-    <div class="ai-left">
-      <div class="card">
-        <div class="card-label">Current Assignment</div>
-        <div id="ai-mapping-table" class="ai-mapping-table"></div>
-      </div>
-      <div class="card">
-        <div class="card-label tree-legend">Tree Legend</div>
-        <div class="legend-row"><span class="legend-dot" style="background:#c084fc"></span> Start</div>
-        <div class="legend-row"><span class="legend-dot" style="background:#00c9a7"></span> Assign digit</div>
-        <div class="legend-row"><span class="legend-dot" style="background:#f43f5e"></span> Backtrack</div>
-        <div class="legend-row"><span class="legend-dot" style="background:#4ade80"></span> Solution ✓</div>
-      </div>
-      <div class="card step-log-card">
-        <div class="card-label">Step Log</div>
-        <div id="step-log" class="step-log"></div>
+      <nav class="tab-nav" role="tablist">
+        <button class="tab-btn active" data-tab="play" role="tab" id="tab-btn-play">
+          <span class="tab-icon">🎮</span> Play &amp; Solve
+        </button>
+        <button class="tab-btn" data-tab="ai" role="tab" id="tab-btn-ai">
+          <span class="tab-icon">🤖</span> AI Learner
+        </button>
+      </nav>
+      <div class="header-stats">
+        <div class="hstat"><span class="hstat-val" id="h-solved">0</span><span class="hstat-lbl">Solved</span></div>
+        <div class="hstat"><span class="hstat-val" id="h-streak">0</span><span class="hstat-lbl">Streak</span></div>
       </div>
     </div>
+  </header>
 
-    <!-- Right: Tree canvas -->
-    <div class="ai-right">
-      <div class="card tree-card">
-        <div class="tree-card-header">
-          <div class="card-label">Backtracking Tree</div>
-          <div class="tree-controls">
-            <button class="btn btn-ghost btn-xs" id="btn-tree-fit">⊞ Fit</button>
-            <button class="btn btn-ghost btn-xs" id="btn-tree-reset-view">↺ Reset View</button>
+  <!-- ── TOAST ──────────────────────────────────────────────── -->
+  <div id="toast" class="toast"></div>
+
+  <!-- ════════════════════════════════════════════════════════ -->
+  <!--  TAB 1 — PLAY                                          -->
+  <!-- ════════════════════════════════════════════════════════ -->
+  <main>
+    <section id="panel-play" class="tab-panel active" role="tabpanel">
+      <div class="play-layout">
+
+        <!-- Left: puzzle + inputs -->
+        <div class="play-main">
+          <!-- Equation card -->
+          <div class="card equation-card">
+            <div class="card-label">Current Puzzle</div>
+            <div class="equation-display" id="equation-display">Loading…</div>
+            <div class="equation-rule">Each letter represents a unique digit (0–9). Leading digits ≠ 0.</div>
           </div>
+
+          <!-- Letter inputs -->
+          <div class="card inputs-card">
+            <div class="card-label">Assign Digits to Letters</div>
+            <div class="letter-grid" id="letter-grid"></div>
+          </div>
+
+          <!-- Controls -->
+          <div class="controls-row">
+            <button class="btn btn-ghost" id="btn-hint">💡 Hint</button>
+            <button class="btn btn-ghost" id="btn-undo">↩ Undo</button>
+            <button class="btn btn-ghost" id="btn-check">✓ Check</button>
+            <button class="btn btn-primary" id="btn-new">⟳ New Puzzle</button>
+            <button class="btn btn-ghost" id="btn-custom">✎ Custom</button>
+          </div>
+
+          <!-- Message bar -->
+          <div class="message-bar" id="message-bar" aria-live="polite"></div>
         </div>
-        <div class="tree-canvas-wrap" id="tree-canvas-wrap">
-          <canvas id="tree-canvas"></canvas>
-          <div class="tree-placeholder" id="tree-placeholder">
-            <div class="placeholder-icon">🌳</div>
-            <div>The backtracking tree will appear here</div>
+
+        <!-- Right: sidebar -->
+        <aside class="play-sidebar">
+          <div class="card stat-card">
+            <div class="card-label">Session Stats</div>
+            <div class="stat-row"><span>⏱ Time</span><span class="stat-val mono" id="play-timer">00:00</span></div>
+            <div class="stat-row"><span>💡 Hints</span><span class="stat-val" id="play-hints">0</span></div>
+            <div class="stat-row"><span>⭐ Score</span><span class="stat-val accent" id="play-score">1000</span></div>
+            <div class="stat-row"><span>🧩 Letters</span><span class="stat-val" id="play-letters">—</span></div>
           </div>
+
+          <div class="card how-card">
+            <div class="card-label">How to Play</div>
+            <ul class="how-list">
+              <li>Each <strong>letter</strong> maps to a unique digit 0–9</li>
+              <li>The <strong>equation</strong> must be arithmetically correct</li>
+              <li>Leading letters <strong>cannot be zero</strong></li>
+              <li>Use <strong>Hint</strong> to reveal one letter</li>
+              <li>Use <strong>AI Learner</strong> tab to watch the solver</li>
+            </ul>
+          </div>
+
+          <div class="card mapping-preview-card">
+            <div class="card-label">Your Mapping</div>
+            <div id="mapping-preview" class="mapping-preview"></div>
+          </div>
+        </aside>
+      </div>
+    </section>
+
+    <!-- ════════════════════════════════════════════════════════ -->
+    <!--  TAB 2 — AI LEARNER                                    -->
+    <!-- ════════════════════════════════════════════════════════ -->
+    <section id="panel-ai" class="tab-panel" role="tabpanel">
+      <!-- Top control bar -->
+      <div class="ai-topbar card">
+        <div class="ai-topbar-left">
+          <label class="topbar-label">Puzzle</label>
+          <select id="ai-puzzle-select" class="ai-select"></select>
+          <button class="btn btn-ghost btn-sm" id="btn-ai-random">🎲 Random</button>
+        </div>
+        <div class="ai-topbar-right">
+          <label class="topbar-label">Speed</label>
+          <div class="speed-wrap">
+            <span class="mono">Slow</span>
+            <input type="range" id="speed-slider" class="speed-slider" min="1" max="10" value="5">
+            <span class="mono">Fast</span>
+          </div>
+          <button class="btn btn-primary btn-sm" id="btn-ai-start">▶ Start</button>
+          <button class="btn btn-ghost btn-sm" id="btn-ai-pause" disabled>⏸ Pause</button>
+          <button class="btn btn-ghost btn-sm" id="btn-ai-reset">⏹ Reset</button>
         </div>
       </div>
+
+      <!-- AI equation display -->
+      <div class="card ai-equation-card">
+        <div id="ai-equation-display" class="equation-display">Select a puzzle above ↑</div>
+        <div class="ai-progress-bar">
+          <div id="ai-progress-fill" class="ai-progress-fill"></div>
+        </div>
+        <div class="ai-step-info">
+          Step <span id="ai-step-cur">0</span> / <span id="ai-step-total">0</span>
+          &nbsp;·&nbsp; <span id="ai-step-msg" class="ai-step-msg">—</span>
+        </div>
+      </div>
+
+      <!-- Main 2-column content -->
+      <div class="ai-content">
+        <!-- Left: Mapping + log -->
+        <div class="ai-left">
+          <div class="card">
+            <div class="card-label">Current Assignment</div>
+            <div id="ai-mapping-table" class="ai-mapping-table"></div>
+          </div>
+          <div class="card">
+            <div class="card-label tree-legend">Tree Legend</div>
+            <div class="legend-row"><span class="legend-dot" style="background:#c084fc"></span> Start</div>
+            <div class="legend-row"><span class="legend-dot" style="background:#00c9a7"></span> Assign digit</div>
+            <div class="legend-row"><span class="legend-dot" style="background:#f43f5e"></span> Backtrack</div>
+            <div class="legend-row"><span class="legend-dot" style="background:#4ade80"></span> Solution ✓</div>
+          </div>
+          <div class="card step-log-card">
+            <div class="card-label">Step Log</div>
+            <div id="step-log" class="step-log"></div>
+          </div>
+        </div>
+
+        <!-- Right: Tree canvas -->
+        <div class="ai-right">
+          <div class="card tree-card">
+            <div class="tree-card-header">
+              <div class="card-label">Backtracking Tree</div>
+              <div class="tree-controls">
+                <button class="btn btn-ghost btn-xs" id="btn-tree-fit">⊞ Fit</button>
+                <button class="btn btn-ghost btn-xs" id="btn-tree-reset-view">↺ Reset View</button>
+              </div>
+            </div>
+            <div class="tree-canvas-wrap" id="tree-canvas-wrap">
+              <canvas id="tree-canvas"></canvas>
+              <div class="tree-placeholder" id="tree-placeholder">
+                <div class="placeholder-icon">🌳</div>
+                <div>The backtracking tree will appear here</div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <!-- ── CUSTOM PUZZLE MODAL ────────────────────────────────── -->
+  <div id="modal-custom" class="modal-overlay" role="dialog" aria-modal="true" aria-label="Custom Puzzle">
+    <div class="modal-box">
+      <div class="modal-header">
+        <h2>Enter Custom Puzzle</h2>
+        <button class="modal-close" id="modal-close">✕</button>
+      </div>
+      <p class="modal-hint">Format: <span class="mono">WORD1 + WORD2 = RESULT</span> (uppercase letters only)</p>
+      <input type="text" id="custom-input" class="text-input" placeholder="e.g.  SEND + MORE = MONEY" maxlength="40">
+      <div id="custom-error" class="custom-error"></div>
+      <div class="modal-footer">
+        <button class="btn btn-ghost" id="btn-modal-cancel">Cancel</button>
+        <button class="btn btn-primary" id="btn-modal-load">Load Puzzle</button>
+      </div>
     </div>
   </div>
-</section>
-</main>
 
-<!-- ── CUSTOM PUZZLE MODAL ────────────────────────────────── -->
-<div id="modal-custom" class="modal-overlay" role="dialog" aria-modal="true" aria-label="Custom Puzzle">
-  <div class="modal-box">
-    <div class="modal-header">
-      <h2>Enter Custom Puzzle</h2>
-      <button class="modal-close" id="modal-close">✕</button>
-    </div>
-    <p class="modal-hint">Format: <span class="mono">WORD1 + WORD2 = RESULT</span> (uppercase letters only)</p>
-    <input type="text" id="custom-input" class="text-input" placeholder="e.g.  SEND + MORE = MONEY" maxlength="40">
-    <div id="custom-error" class="custom-error"></div>
-    <div class="modal-footer">
-      <button class="btn btn-ghost" id="btn-modal-cancel">Cancel</button>
-      <button class="btn btn-primary" id="btn-modal-load">Load Puzzle</button>
-    </div>
-  </div>
-</div>
-
-<script src="/static/js/app.js"></script>
+  <script src="/static/js/app.js"></script>
 </body>
+
 </html>
