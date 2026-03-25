@@ -21,7 +21,7 @@ A modern web-based cryptarithmetic puzzle game with a visual AI backtracking sol
 
 1. Clone the repository:
    ```bash
-   git clone <repository-url>
+   git clone [<repository-url>](https://github.com/pavxxx/Cryptar.git)
    cd cryptarithm-game
    ```
 
