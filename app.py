@@ -205,7 +205,15 @@ def solve_traced(words, result, max_steps=2000):
 
 def gen_puzzle(difficulty=None):
     if difficulty == 'easy':
-        min_l, max_l = 3, 5
+        easies = [p for p in SIMPLE_PUZZLES if p.get("difficulty") == "easy"]
+        if easies:
+            p = random.choice(easies)
+            return {"words": p["words"], "result": p["result"],
+                    "letters": unique_letters(p["words"], p["result"]),
+                    "text": p["name"], "name": p["name"], 
+                    "solution": solve_only(p["words"], p["result"]),
+                    "difficulty": "easy"}
+        min_l, max_l = 4, 6
     elif difficulty == 'medium':
         min_l, max_l = 5, 7
     elif difficulty == 'hard':

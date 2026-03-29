@@ -7,64 +7,64 @@
 // ── Global state ──────────────────────────────────────────
 const state = {
   // Play tab
-  puzzle:     null,   // {words, result, letters, text}
-  solution:   null,   // {LETTER: digit}
-  mapping:    {},     // user's current mapping
-  history:    [],     // undo stack
-  hintsUsed:  0,
-  score:      1000,
-  timerSec:   0,
-  timerHandle:null,
-  solved:     false,
+  puzzle: null,   // {words, result, letters, text}
+  solution: null,   // {LETTER: digit}
+  mapping: {},     // user's current mapping
+  history: [],     // undo stack
+  hintsUsed: 0,
+  score: 1000,
+  timerSec: 0,
+  timerHandle: null,
+  solved: false,
   difficulty: 'easy',
 
   // Session stats
   totalSolved: 0,
-  streak:      0,
-  bestStreak:  0,
+  streak: 0,
+  bestStreak: 0,
 
   // AI tab
-  aiSteps:       [],
-  aiNodeMap:     {},   // node_id -> node obj (for tree)
-  aiAnimHandle:  null,
-  aiPaused:      false,
-  aiStepIdx:     0,
-  aiSpeed:       5,
-  aiPuzzle:      null,
-  aiSolution:    null,
+  aiSteps: [],
+  aiNodeMap: {},   // node_id -> node obj (for tree)
+  aiAnimHandle: null,
+  aiPaused: false,
+  aiStepIdx: 0,
+  aiSpeed: 5,
+  aiPuzzle: null,
+  aiSolution: null,
 
   // Analytics
   solveHistory: [],    // persisted in localStorage
   totalAttempts: 0,
   correctMoves: 0,
-  wrongMoves:   0,
+  wrongMoves: 0,
 };
 
 // ── Load persisted stats ──────────────────────────────────
 function loadStats() {
   try {
     const saved = JSON.parse(localStorage.getItem('cryptarithm_stats') || '{}');
-    state.totalSolved  = saved.totalSolved  || 0;
-    state.bestStreak   = saved.bestStreak   || 0;
+    state.totalSolved = saved.totalSolved || 0;
+    state.bestStreak = saved.bestStreak || 0;
     state.solveHistory = saved.solveHistory || [];
     state.totalAttempts = saved.totalAttempts || 0;
-    state.correctMoves  = saved.correctMoves || 0;
-    state.wrongMoves    = saved.wrongMoves   || 0;
+    state.correctMoves = saved.correctMoves || 0;
+    state.wrongMoves = saved.wrongMoves || 0;
     $('h-solved').textContent = state.totalSolved;
-  } catch(e) {}
+  } catch (e) { }
 }
 
 function saveStats() {
   try {
     localStorage.setItem('cryptarithm_stats', JSON.stringify({
-      totalSolved:  state.totalSolved,
-      bestStreak:   state.bestStreak,
+      totalSolved: state.totalSolved,
+      bestStreak: state.bestStreak,
       solveHistory: state.solveHistory.slice(-50), // keep last 50 only
       totalAttempts: state.totalAttempts,
-      correctMoves:  state.correctMoves,
-      wrongMoves:    state.wrongMoves,
+      correctMoves: state.correctMoves,
+      wrongMoves: state.wrongMoves,
     }));
-  } catch(e) {}
+  } catch (e) { }
 }
 
 // ── DOM refs ──────────────────────────────────────────────
@@ -132,13 +132,13 @@ async function loadPuzzle(data) {
   if (!data) data = await api(`/api/puzzle?difficulty=${state.difficulty}`);
   if (data.error) { toast('Failed to load puzzle', 'error'); return; }
 
-  state.puzzle   = data;
+  state.puzzle = data;
   state.solution = null;
-  state.mapping  = {};
-  state.history  = [];
+  state.mapping = {};
+  state.history = [];
   state.hintsUsed = 0;
-  state.score    = 1000;
-  state.solved   = false;
+  state.score = 1000;
+  state.solved = false;
 
   // Fetch solution separately (so we can validate)
   const solRes = await api('/api/solution', {
@@ -150,8 +150,8 @@ async function loadPuzzle(data) {
   renderPuzzle();
   startTimer();
   setMessage('Game started — assign digits to each letter!');
-  $('play-hints').textContent  = 0;
-  $('play-score').textContent  = 1000;
+  $('play-hints').textContent = 0;
+  $('play-score').textContent = 1000;
   $('play-letters').textContent = data.letters.length;
   updateMappingPreview();
 }
@@ -178,7 +178,7 @@ function renderPuzzle() {
     inp.id = `li-${letter}`;
     inp.placeholder = '?';
     inp.addEventListener('change', () => handleMove(letter, inp.value));
-    inp.addEventListener('input',  () => {
+    inp.addEventListener('input', () => {
       if (inp.value.length > 1) inp.value = inp.value.slice(-1);
     });
 
@@ -217,7 +217,7 @@ async function handleMove(letter, rawVal) {
     }),
   });
 
-  const card   = $(`lc-${letter}`);
+  const card = $(`lc-${letter}`);
   const status = $(`ls-${letter}`);
   card.classList.remove('correct', 'wrong', 'warn');
 
@@ -331,7 +331,7 @@ $('btn-hint').addEventListener('click', async () => {
     if (inp) { inp.value = res.digit; }
     const card = $(`lc-${res.letter}`);
     if (card) {
-      card.classList.remove('wrong','warn');
+      card.classList.remove('wrong', 'warn');
       card.classList.add('correct');
       $(`ls-${res.letter}`).textContent = '✓';
     }
@@ -352,13 +352,13 @@ $('btn-undo').addEventListener('click', () => {
   state.mapping = state.history.pop();
   // Re-render inputs from mapping
   state.puzzle.letters.forEach(l => {
-    const inp  = $(`li-${l}`);
+    const inp = $(`li-${l}`);
     const card = $(`lc-${l}`);
-    const st   = $(`ls-${l}`);
+    const st = $(`ls-${l}`);
     if (!inp) return;
     const d = state.mapping[l];
     inp.value = d !== undefined ? d : '';
-    card.classList.remove('correct','wrong','warn');
+    card.classList.remove('correct', 'wrong', 'warn');
     if (d !== undefined && state.solution && state.solution[l] === d) {
       card.classList.add('correct'); st.textContent = '✓';
     } else { st.textContent = ''; }
@@ -370,7 +370,7 @@ $('btn-undo').addEventListener('click', () => {
 // Check all
 $('btn-check').addEventListener('click', () => {
   if (!state.puzzle) return;
-  
+
   let allFilled = true;
   let allCorrect = true;
 
@@ -383,9 +383,9 @@ $('btn-check').addEventListener('click', () => {
     }
   });
 
-  if (!allFilled) { 
-    toast('⚠ Fill in all letters first!', 'error'); 
-    return; 
+  if (!allFilled) {
+    toast('⚠ Fill in all letters first!', 'error');
+    return;
   }
 
   if (allCorrect) {
@@ -413,7 +413,7 @@ $('modal-custom').addEventListener('click', e => { if (e.target === $('modal-cus
 function closeModal() { $('modal-custom').classList.remove('open'); }
 
 $('btn-modal-load').addEventListener('click', () => {
-  const raw   = $('custom-input').value.trim().toUpperCase();
+  const raw = $('custom-input').value.trim().toUpperCase();
   const errEl = $('custom-error');
   errEl.textContent = '';
   if (!raw.includes('=') || !raw.includes('+')) {
@@ -447,7 +447,7 @@ async function initAiTab() {
     sel.appendChild(opt);
   });
   sel._presets = presets;
-  
+
   if (presets.length > 0) {
     state.aiPuzzle = presets[0];
     $('ai-equation-display').textContent = presets[0].text;
@@ -473,15 +473,15 @@ $('ai-puzzle-select').addEventListener('change', function () {
 
 function clearAiState() {
   stopAi();
-  state.aiSteps   = [];
+  state.aiSteps = [];
   state.aiStepIdx = 0;
   state.aiNodeMap = {};
-  $('ai-step-cur').textContent   = 0;
+  $('ai-step-cur').textContent = 0;
   $('ai-step-total').textContent = 0;
-  $('ai-step-msg').textContent   = '—';
+  $('ai-step-msg').textContent = '—';
   $('ai-progress-fill').style.width = '0%';
-  $('ai-mapping-table').innerHTML  = '';
-  $('step-log').innerHTML          = '';
+  $('ai-mapping-table').innerHTML = '';
+  $('step-log').innerHTML = '';
   $('tree-placeholder').style.display = 'flex';
   $('ai-concept-badge').innerHTML = '';
   $('concept-explain').textContent = 'Select a puzzle and press Start to see AI concepts explained step by step.';
@@ -497,13 +497,13 @@ $('btn-ai-start').addEventListener('click', async () => {
     const res = await api('/api/solve', {
       method: 'POST',
       body: JSON.stringify({
-        words:     state.aiPuzzle.words,
-        result:    state.aiPuzzle.result,
+        words: state.aiPuzzle.words,
+        result: state.aiPuzzle.result,
         max_steps: 15000,
       }),
     });
     if (!res.steps || !res.steps.length) { toast('Could not solve puzzle', 'error'); return; }
-    state.aiSteps   = res.steps;
+    state.aiSteps = res.steps;
     state.aiSolution = res.solution;
     state.aiStepIdx = 0;
     $('ai-step-total').textContent = res.total_steps;
@@ -541,17 +541,17 @@ $('btn-ai-step').addEventListener('click', () => {
   state.aiStepIdx++;
   if (state.aiStepIdx >= state.aiSteps.length) {
     toast('AI solver finished!', 'success');
-    $('btn-ai-start').disabled  = false;
-    $('btn-ai-pause').disabled  = true;
-    $('btn-ai-step').disabled   = true;
+    $('btn-ai-start').disabled = false;
+    $('btn-ai-pause').disabled = true;
+    $('btn-ai-step').disabled = true;
   }
 });
 
 $('btn-ai-reset').addEventListener('click', () => {
   if (!state.aiPuzzle) return;
   clearAiState();
-  $('btn-ai-start').disabled  = false;
-  $('btn-ai-pause').disabled  = true;
+  $('btn-ai-start').disabled = false;
+  $('btn-ai-pause').disabled = true;
   $('btn-ai-pause').textContent = '⏸ Pause';
 });
 
@@ -567,9 +567,9 @@ function stopAi() {
 function runAiAnimation() {
   if (state.aiPaused) return;
   if (state.aiStepIdx >= state.aiSteps.length) {
-    $('btn-ai-start').disabled  = false;
-    $('btn-ai-pause').disabled  = true;
-    $('btn-ai-step').disabled   = true;
+    $('btn-ai-start').disabled = false;
+    $('btn-ai-pause').disabled = true;
+    $('btn-ai-step').disabled = true;
     toast('AI solver finished!', 'success');
     // Auto-fit the whole tree when animation is done
     treeRenderer.fitViewAll();
@@ -583,14 +583,14 @@ function runAiAnimation() {
   // Exponentional speed scale: 1=Slowest (800ms) to 10=Fastest (0ms/Instant)
   const delays = [800, 500, 300, 180, 100, 50, 25, 10, 2, 0];
   const delay = delays[state.aiSpeed - 1] ?? 100;
-  
+
   state.aiAnimHandle = setTimeout(runAiAnimation, delay);
 }
 
 function processAiStep(step, idx) {
   const total = state.aiSteps.length;
-  $('ai-step-cur').textContent      = idx + 1;
-  $('ai-step-msg').textContent      = step.message;
+  $('ai-step-cur').textContent = idx + 1;
+  $('ai-step-msg').textContent = step.message;
   $('ai-progress-fill').style.width = `${((idx + 1) / total * 100).toFixed(1)}%`;
 
   // Mapping table
@@ -670,7 +670,7 @@ function renderAiMapping(mapping, activeLetter, type) {
 }
 
 function addLogEntry(step, idx) {
-  const log  = $('step-log');
+  const log = $('step-log');
   const entry = document.createElement('div');
   // Only keep last 80 entries for performance
   while (log.children.length > 79) log.removeChild(log.firstChild);
@@ -679,7 +679,7 @@ function addLogEntry(step, idx) {
   log.querySelectorAll('.current').forEach(e => e.classList.remove('current'));
 
   entry.className = `log-entry ${step.type} current`;
-  entry.textContent = `[${String(idx + 1).padStart(3,' ')}] ${step.message}`;
+  entry.textContent = `[${String(idx + 1).padStart(3, ' ')}] ${step.message}`;
   log.appendChild(entry);
   entry.scrollIntoView({ block: 'nearest', behavior: 'smooth' });
 }
@@ -695,13 +695,13 @@ $('btn-tree-reset-view').addEventListener('click', () => treeRenderer.resetView(
 class TreeRenderer {
   constructor() {
     this.canvas = $('tree-canvas');
-    this.ctx    = this.canvas.getContext('2d');
-    this.nodes  = [];          // ordered list
+    this.ctx = this.canvas.getContext('2d');
+    this.nodes = [];          // ordered list
     this.nodeMap = {};         // id → node
     this.currentIdx = -1;
     this.transform = { x: 0, y: 0, scale: 1 };
     this.isDragging = false;
-    this.dragStart  = { x: 0, y: 0 };
+    this.dragStart = { x: 0, y: 0 };
     this._setupEvents();
     this._resize();
     window.addEventListener('resize', () => this._resize());
@@ -709,7 +709,7 @@ class TreeRenderer {
 
   _resize() {
     const wrap = $('tree-canvas-wrap');
-    this.canvas.width  = wrap.clientWidth  || 600;
+    this.canvas.width = wrap.clientWidth || 600;
     this.canvas.height = wrap.clientHeight || 420;
     this.render();
   }
@@ -726,7 +726,7 @@ class TreeRenderer {
       this.transform.y = e.clientY - this.dragStart.y;
       this.render();
     });
-    c.addEventListener('mouseup',  () => { this.isDragging = false; });
+    c.addEventListener('mouseup', () => { this.isDragging = false; });
     c.addEventListener('mouseleave', () => { this.isDragging = false; });
 
     // FIXED: Only prevent default scroll on the canvas itself,
@@ -747,7 +747,7 @@ class TreeRenderer {
   }
 
   build(steps) {
-    this.nodes  = [];
+    this.nodes = [];
     this.nodeMap = {};
     this.currentIdx = -1;
 
@@ -793,7 +793,7 @@ class TreeRenderer {
     } else {
       node.children.forEach(c => this._layout(c, xOff));
       const first = node.children[0];
-      const last  = node.children[node.children.length - 1];
+      const last = node.children[node.children.length - 1];
       node.x = (first.x + last.x) / 2;
     }
     node.y = node.depth * H + 50;
@@ -803,7 +803,7 @@ class TreeRenderer {
     if (!this.nodes.length) return;
     const xs = this.nodes.map(n => n.x);
     const mid = (Math.min(...xs) + Math.max(...xs)) / 2;
-    const cw  = this.canvas.width / 2;
+    const cw = this.canvas.width / 2;
     this.nodes.forEach(n => { n.x = n.x - mid + cw; });
   }
 
@@ -820,19 +820,19 @@ class TreeRenderer {
 
   _fitToNodes(src) {
     if (!src.length) return;
-    const pad  = 60;
-    const xs   = src.map(n => n.x);
-    const ys   = src.map(n => n.y);
+    const pad = 60;
+    const xs = src.map(n => n.x);
+    const ys = src.map(n => n.y);
     const minX = Math.min(...xs) - pad, maxX = Math.max(...xs) + pad;
     const minY = Math.min(...ys) - pad, maxY = Math.max(...ys) + pad;
-    const tw   = maxX - minX, th = maxY - minY;
+    const tw = maxX - minX, th = maxY - minY;
     const scale = Math.min(
-      this.canvas.width  / tw,
+      this.canvas.width / tw,
       this.canvas.height / th,
       1.8
     );
     this.transform.scale = scale;
-    this.transform.x = -minX * scale + (this.canvas.width  - tw * scale) / 2;
+    this.transform.x = -minX * scale + (this.canvas.width - tw * scale) / 2;
     this.transform.y = -minY * scale + (this.canvas.height - th * scale) / 2;
     this.render();
   }
@@ -858,9 +858,9 @@ class TreeRenderer {
       const sy = node.y * this.transform.scale + this.transform.y;
       const margin = 80;
       let dx = 0, dy = 0;
-      if (sx < margin)                      dx = margin - sx;
-      if (sx > this.canvas.width  - margin) dx = (this.canvas.width  - margin) - sx;
-      if (sy < margin)                      dy = margin - sy;
+      if (sx < margin) dx = margin - sx;
+      if (sx > this.canvas.width - margin) dx = (this.canvas.width - margin) - sx;
+      if (sy < margin) dy = margin - sy;
       if (sy > this.canvas.height - margin) dy = (this.canvas.height - margin) - sy;
       if (dx !== 0 || dy !== 0) {
         this.transform.x += dx;
@@ -871,7 +871,7 @@ class TreeRenderer {
   }
 
   clear() {
-    this.nodes   = [];
+    this.nodes = [];
     this.nodeMap = {};
     this.currentIdx = -1;
     this.render();
@@ -879,12 +879,12 @@ class TreeRenderer {
 
   _color(type) {
     switch (type) {
-      case 'start':     return '#c084fc';
-      case 'assign':    return '#00c9a7';
-      case 'pruned':    return '#fbbf24';
+      case 'start': return '#c084fc';
+      case 'assign': return '#00c9a7';
+      case 'pruned': return '#fbbf24';
       case 'backtrack': return '#f43f5e';
-      case 'success':   return '#4ade80';
-      default:          return '#64748b';
+      case 'success': return '#4ade80';
+      default: return '#64748b';
     }
   }
 
@@ -898,7 +898,7 @@ class TreeRenderer {
     ctx.translate(t.x, t.y);
     ctx.scale(t.scale, t.scale);
 
-    const R_BASE    = 26;
+    const R_BASE = 26;
     const R_CURRENT = 33;
 
     // ── Edges ──────────────────────────────────────────────
@@ -910,13 +910,13 @@ class TreeRenderer {
       ctx.lineTo(node.x, node.y);
       if (node.isCurrent) {
         ctx.strokeStyle = this._color(node.type);
-        ctx.lineWidth   = 2.5;
+        ctx.lineWidth = 2.5;
         ctx.shadowColor = this._color(node.type);
-        ctx.shadowBlur  = 8;
+        ctx.shadowBlur = 8;
       } else {
         ctx.strokeStyle = 'rgba(180,195,220,0.18)';
-        ctx.lineWidth   = 1.5;
-        ctx.shadowBlur  = 0;
+        ctx.lineWidth = 1.5;
+        ctx.shadowBlur = 0;
       }
       ctx.stroke();
       ctx.shadowBlur = 0;
@@ -925,7 +925,7 @@ class TreeRenderer {
     // ── Nodes ───────────────────────────────────────────────
     this.nodes.forEach(node => {
       if (!node.visible) return;
-      const r     = node.isCurrent ? R_CURRENT : R_BASE;
+      const r = node.isCurrent ? R_CURRENT : R_BASE;
       const color = this._color(node.type);
 
       // Outer glow for current node
@@ -946,7 +946,7 @@ class TreeRenderer {
 
       if (node.isCurrent) {
         const grad = ctx.createRadialGradient(node.x - r * 0.3, node.y - r * 0.3, r * 0.1,
-                                              node.x,              node.y,              r);
+          node.x, node.y, r);
         grad.addColorStop(0, color + 'ff');
         grad.addColorStop(1, color + 'bb');
         ctx.fillStyle = grad;
@@ -957,27 +957,27 @@ class TreeRenderer {
 
       // Border ring
       ctx.strokeStyle = node.isCurrent ? '#ffffff55' : 'rgba(255,255,255,0.18)';
-      ctx.lineWidth   = node.isCurrent ? 2 : 1.2;
+      ctx.lineWidth = node.isCurrent ? 2 : 1.2;
       ctx.stroke();
 
       // ── Digit / symbol label ────────────────────────────
       ctx.fillStyle = '#ffffff';
       ctx.font = `bold ${Math.round(r * 0.62)}px "JetBrains Mono",monospace`;
-      ctx.textAlign    = 'center';
+      ctx.textAlign = 'center';
       ctx.textBaseline = 'middle';
       let label = '';
-      if (node.type === 'start')          label = 'S';
-      else if (node.type === 'success')   label = '✓';
+      if (node.type === 'start') label = 'S';
+      else if (node.type === 'success') label = '✓';
       else label = (node.digit !== null && node.digit !== undefined) ? String(node.digit) : '?';
       ctx.shadowColor = node.isCurrent ? color : 'transparent';
-      ctx.shadowBlur  = node.isCurrent ? 6 : 0;
+      ctx.shadowBlur = node.isCurrent ? 6 : 0;
       ctx.fillText(label, node.x, node.y);
       ctx.shadowBlur = 0;
 
       // ── Letter above node ──────────────────────────────
       if (node.letter) {
         ctx.fillStyle = node.isCurrent ? '#fff' : 'rgba(240,244,255,0.6)';
-        ctx.font      = `bold ${node.isCurrent ? 13 : 11}px "Space Grotesk",sans-serif`;
+        ctx.font = `bold ${node.isCurrent ? 13 : 11}px "Space Grotesk",sans-serif`;
         ctx.fillText(node.letter, node.x, node.y - r - 9);
       }
     });
@@ -1013,7 +1013,7 @@ $('btn-compare-random').addEventListener('click', async () => {
   const data = await api('/api/puzzle');
   if (data.error) { toast('Could not generate puzzle', 'error'); return; }
   const sel = $('compare-puzzle-select');
-  
+
   // Add as a new option
   const opt = document.createElement('option');
   const idx = sel.options.length;
@@ -1021,7 +1021,7 @@ $('btn-compare-random').addEventListener('click', async () => {
   opt.textContent = data.name + ' [RANDOM]';
   sel.appendChild(opt);
   sel.value = idx;
-  
+
   if (!sel._presets) sel._presets = [];
   sel._presets.push(data);
 });
@@ -1030,10 +1030,10 @@ $('btn-run-compare').addEventListener('click', async () => {
   const sel = $('compare-puzzle-select');
   const presets = sel._presets;
   if (!presets || !presets[+sel.value]) { toast('Select a puzzle first', 'error'); return; }
-  
+
   const p = presets[+sel.value];
   toast('Running comparison…');
-  
+
   const res = await api('/api/compare', {
     method: 'POST',
     body: JSON.stringify({ words: p.words, result: p.result }),
@@ -1043,12 +1043,12 @@ $('btn-run-compare').addEventListener('click', async () => {
 
   // Backtracking results
   $('cmp-bt-steps').textContent = res.backtracking.steps.toLocaleString();
-  $('cmp-bt-time').textContent  = res.backtracking.time_ms + ' ms';
+  $('cmp-bt-time').textContent = res.backtracking.time_ms + ' ms';
   $('cmp-bt-result').textContent = res.backtracking.solution ? '✓ Solved' : '✗ Not found';
 
   // Brute force results
   $('cmp-bf-steps').textContent = res.brute_force.steps.toLocaleString();
-  $('cmp-bf-time').textContent  = res.brute_force.time_ms + ' ms';
+  $('cmp-bf-time').textContent = res.brute_force.time_ms + ' ms';
   $('cmp-bf-result').textContent = res.brute_force.solution ? '✓ Solved' : (res.brute_force.steps >= 50000 ? '⚠ Exceeded 50k steps' : '✗ Not found');
 
   // Animate bars
@@ -1061,11 +1061,11 @@ $('btn-run-compare').addEventListener('click', async () => {
   // Speedup calculation
   const speedup = res.brute_force.steps > 0 ? (res.brute_force.steps / Math.max(res.backtracking.steps, 1)) : 1;
   const timeSpeedup = res.brute_force.time_ms > 0 ? (res.brute_force.time_ms / Math.max(res.backtracking.time_ms, 0.01)) : 1;
-  
+
   $('speedup-text').innerHTML = `Backtracking with pruning was <strong>${speedup.toFixed(1)}×</strong> more efficient in steps ` +
     `and <strong>${timeSpeedup.toFixed(1)}×</strong> faster in execution time. ` +
     `Pruning eliminated <strong>${Math.max(0, res.brute_force.steps - res.backtracking.steps).toLocaleString()}</strong> unnecessary explorations.`;
-  
+
   toast('Comparison complete!', 'success');
 });
 
@@ -1076,7 +1076,7 @@ $('btn-run-compare').addEventListener('click', async () => {
 function renderStatsTab() {
   // Overview stats
   $('stats-total-solved').textContent = state.totalSolved;
-  $('stats-best-streak').textContent  = state.bestStreak;
+  $('stats-best-streak').textContent = state.bestStreak;
 
   // Avg time
   const times = state.solveHistory.map(h => h.time);
@@ -1084,8 +1084,8 @@ function renderStatsTab() {
   $('stats-avg-time').textContent = times.length > 0 ? formatTime(avgTime) : '--:--';
 
   // Accuracy
-  const accuracy = state.totalAttempts > 0 
-    ? Math.round((state.correctMoves / state.totalAttempts) * 100) 
+  const accuracy = state.totalAttempts > 0
+    ? Math.round((state.correctMoves / state.totalAttempts) * 100)
     : 0;
   $('stats-accuracy').textContent = accuracy + '%';
 
@@ -1123,7 +1123,7 @@ function renderStatsChart() {
   const canvas = $('stats-chart');
   if (!canvas) return;
   const ctx = canvas.getContext('2d');
-  canvas.width  = canvas.parentElement.clientWidth - 24;
+  canvas.width = canvas.parentElement.clientWidth - 24;
   canvas.height = 200;
   ctx.clearRect(0, 0, canvas.width, canvas.height);
 
@@ -1196,12 +1196,12 @@ function renderStatsChart() {
 // Clear stats
 $('btn-clear-stats').addEventListener('click', () => {
   if (!confirm('Clear all stats? This cannot be undone.')) return;
-  state.totalSolved  = 0;
-  state.bestStreak   = 0;
+  state.totalSolved = 0;
+  state.bestStreak = 0;
   state.solveHistory = [];
   state.totalAttempts = 0;
-  state.correctMoves  = 0;
-  state.wrongMoves    = 0;
+  state.correctMoves = 0;
+  state.wrongMoves = 0;
   state.streak = 0;
   $('h-solved').textContent = 0;
   $('h-streak').textContent = 0;
@@ -1214,8 +1214,8 @@ $('btn-clear-stats').addEventListener('click', () => {
 $('btn-export-stats').addEventListener('click', () => {
   const data = {
     totalSolved: state.totalSolved,
-    bestStreak:  state.bestStreak,
-    accuracy:    state.totalAttempts > 0 ? Math.round((state.correctMoves / state.totalAttempts) * 100) : 0,
+    bestStreak: state.bestStreak,
+    accuracy: state.totalAttempts > 0 ? Math.round((state.correctMoves / state.totalAttempts) * 100) : 0,
     solveHistory: state.solveHistory,
   };
   const blob = new Blob([JSON.stringify(data, null, 2)], { type: 'application/json' });
@@ -1235,10 +1235,10 @@ $('btn-export-stats').addEventListener('click', () => {
 function spawnConfetti() {
   const canvas = $('confetti-canvas');
   if (!canvas) return;
-  canvas.width  = window.innerWidth;
+  canvas.width = window.innerWidth;
   canvas.height = window.innerHeight;
   const ctx = canvas.getContext('2d');
-  const COLORS = ['#ff6b35','#00c9a7','#4ade80','#facc15','#f43f5e','#c084fc'];
+  const COLORS = ['#ff6b35', '#00c9a7', '#4ade80', '#facc15', '#f43f5e', '#c084fc'];
   const particles = Array.from({ length: 120 }, () => ({
     x: Math.random() * canvas.width,
     y: -10,
@@ -1282,7 +1282,7 @@ function initSplash() {
   // ── Floating cipher particles on the canvas background ──
   const canvas = $('splash-canvas');
   if (canvas) {
-    canvas.width  = window.innerWidth;
+    canvas.width = window.innerWidth;
     canvas.height = window.innerHeight;
     const ctx = canvas.getContext('2d');
 
@@ -1295,7 +1295,7 @@ function initSplash() {
       alpha: 0.03 + Math.random() * 0.08,
       vy: -(0.2 + Math.random() * 0.5),
       vx: (Math.random() - 0.5) * 0.3,
-      color: ['#ff6b35','#00c9a7','#c084fc','#4ade80','#facc15'][Math.floor(Math.random() * 5)],
+      color: ['#ff6b35', '#00c9a7', '#c084fc', '#4ade80', '#facc15'][Math.floor(Math.random() * 5)],
     }));
 
     let splashAlive = true;
