@@ -15,6 +15,36 @@
 
 <body>
 
+  <!-- ── WELCOME SPLASH ───────────────────────────────────── -->
+  <div id="welcome-splash" class="welcome-splash">
+    <canvas id="splash-canvas"></canvas>
+    <div class="splash-content">
+      <div class="splash-equation">
+        <span class="splash-char" style="--i:0">S</span>
+        <span class="splash-char" style="--i:1">E</span>
+        <span class="splash-char" style="--i:2">N</span>
+        <span class="splash-char" style="--i:3">D</span>
+        <span class="splash-op"   style="--i:4">+</span>
+        <span class="splash-char" style="--i:5">M</span>
+        <span class="splash-char" style="--i:6">O</span>
+        <span class="splash-char" style="--i:7">R</span>
+        <span class="splash-char" style="--i:8">E</span>
+        <span class="splash-op"   style="--i:9">=</span>
+        <span class="splash-char" style="--i:10">M</span>
+        <span class="splash-char" style="--i:11">O</span>
+        <span class="splash-char" style="--i:12">N</span>
+        <span class="splash-char" style="--i:13">E</span>
+        <span class="splash-char" style="--i:14">Y</span>
+      </div>
+      <div class="splash-line"></div>
+      <h1 class="splash-title">
+        <span class="splash-t" style="--j:0">C</span><span class="splash-t" style="--j:1">r</span><span class="splash-t" style="--j:2">y</span><span class="splash-t" style="--j:3">p</span><span class="splash-t" style="--j:4">t</span><span class="splash-t" style="--j:5">A</span><span class="splash-t" style="--j:6">r</span><span class="splash-t" style="--j:7">i</span><span class="splash-t" style="--j:8">t</span><span class="splash-t" style="--j:9">h</span><span class="splash-t" style="--j:10">m</span><span class="splash-t" style="--j:11">e</span><span class="splash-t" style="--j:12">t</span><span class="splash-t" style="--j:13">i</span><span class="splash-t" style="--j:14">c</span>
+      </h1>
+      <p class="splash-tagline">AI-Powered Puzzle Solver</p>
+      <div class="splash-enter">Click anywhere to enter</div>
+    </div>
+  </div>
+
   <!-- ── PARTICLES ─────────────────────────────────────────── -->
   <div id="particles"></div>
   <canvas id="confetti-canvas"></canvas>
@@ -27,10 +57,19 @@
       </div>
       <nav class="tab-nav" role="tablist">
         <button class="tab-btn active" data-tab="play" role="tab" id="tab-btn-play">
-          <span class="tab-icon">🎮</span> Play &amp; Solve
+          <span class="tab-icon">🎮</span> Play & Solve
         </button>
         <button class="tab-btn" data-tab="ai" role="tab" id="tab-btn-ai">
           <span class="tab-icon">🤖</span> AI Learner
+        </button>
+        <button class="tab-btn" data-tab="compare" role="tab" id="tab-btn-compare">
+          <span class="tab-icon">📊</span> Algorithm Compare
+        </button>
+        <button class="tab-btn" data-tab="concepts" role="tab" id="tab-btn-concepts">
+          <span class="tab-icon">🎓</span> AI Concepts
+        </button>
+        <button class="tab-btn" data-tab="stats" role="tab" id="tab-btn-stats">
+          <span class="tab-icon">📈</span> Analytics
         </button>
       </nav>
       <div class="header-stats">
@@ -52,6 +91,14 @@
 
         <!-- Left: puzzle + inputs -->
         <div class="play-main">
+          <!-- Difficulty selector -->
+          <div class="difficulty-bar">
+            <span class="diff-label">Difficulty:</span>
+            <button class="diff-btn active" data-diff="easy" id="diff-easy">🟢 Easy</button>
+            <button class="diff-btn" data-diff="medium" id="diff-medium">🟡 Medium</button>
+            <button class="diff-btn" data-diff="hard" id="diff-hard">🔴 Hard</button>
+          </div>
+
           <!-- Equation card -->
           <div class="card equation-card">
             <div class="card-label">Current Puzzle</div>
@@ -86,6 +133,8 @@
             <div class="stat-row"><span>💡 Hints</span><span class="stat-val" id="play-hints">0</span></div>
             <div class="stat-row"><span>⭐ Score</span><span class="stat-val accent" id="play-score">1000</span></div>
             <div class="stat-row"><span>🧩 Letters</span><span class="stat-val" id="play-letters">—</span></div>
+            <div class="stat-row"><span>📊 Difficulty</span><span class="stat-val" id="play-difficulty">Easy</span>
+            </div>
           </div>
 
           <div class="card how-card">
@@ -96,6 +145,7 @@
               <li>Leading letters <strong>cannot be zero</strong></li>
               <li>Use <strong>Hint</strong> to reveal one letter</li>
               <li>Use <strong>AI Learner</strong> tab to watch the solver</li>
+              <li>Try <strong>Algorithm Compare</strong> to see AI vs brute force</li>
             </ul>
           </div>
 
@@ -111,8 +161,8 @@
     <!--  TAB 2 — AI LEARNER                                    -->
     <!-- ════════════════════════════════════════════════════════ -->
     <section id="panel-ai" class="tab-panel" role="tabpanel">
-      <!-- Top control bar -->
-      <div class="ai-topbar card">
+      <!-- Top control bar — sticky so it stays visible -->
+      <div class="ai-topbar card ai-topbar-sticky">
         <div class="ai-topbar-left">
           <label class="topbar-label">Puzzle</label>
           <select id="ai-puzzle-select" class="ai-select"></select>
@@ -127,12 +177,13 @@
           </div>
           <button class="btn btn-primary btn-sm" id="btn-ai-start">▶ Start</button>
           <button class="btn btn-ghost btn-sm" id="btn-ai-pause" disabled>⏸ Pause</button>
+          <button class="btn btn-ghost btn-sm" id="btn-ai-step" disabled>⏭ Step</button>
           <button class="btn btn-ghost btn-sm" id="btn-ai-reset">⏹ Reset</button>
         </div>
       </div>
 
-      <!-- AI equation display -->
-      <div class="card ai-equation-card">
+      <!-- AI equation display + step counter — also sticky -->
+      <div class="card ai-equation-card ai-eq-sticky">
         <div id="ai-equation-display" class="equation-display">Select a puzzle above ↑</div>
         <div class="ai-progress-bar">
           <div id="ai-progress-fill" class="ai-progress-fill"></div>
@@ -141,6 +192,8 @@
           Step <span id="ai-step-cur">0</span> / <span id="ai-step-total">0</span>
           &nbsp;·&nbsp; <span id="ai-step-msg" class="ai-step-msg">—</span>
         </div>
+        <!-- Concept badge -->
+        <div class="ai-concept-badge" id="ai-concept-badge"></div>
       </div>
 
       <!-- Main 2-column content -->
@@ -155,8 +208,16 @@
             <div class="card-label tree-legend">Tree Legend</div>
             <div class="legend-row"><span class="legend-dot" style="background:#c084fc"></span> Start</div>
             <div class="legend-row"><span class="legend-dot" style="background:#00c9a7"></span> Assign digit</div>
+            <div class="legend-row"><span class="legend-dot" style="background:#fbbf24"></span> Pruned ✂</div>
             <div class="legend-row"><span class="legend-dot" style="background:#f43f5e"></span> Backtrack</div>
             <div class="legend-row"><span class="legend-dot" style="background:#4ade80"></span> Solution ✓</div>
+          </div>
+          <!-- Step-by-step explanation -->
+          <div class="card concept-card" id="concept-explain-card">
+            <div class="card-label">🧠 What's Happening</div>
+            <div id="concept-explain" class="concept-explain">
+              Select a puzzle and press Start to see AI concepts explained step by step.
+            </div>
           </div>
           <div class="card step-log-card">
             <div class="card-label">Step Log</div>
@@ -183,6 +244,230 @@
             </div>
           </div>
         </div>
+      </div>
+    </section>
+
+    <!-- ════════════════════════════════════════════════════════ -->
+    <!--  TAB 3 — ALGORITHM COMPARE                             -->
+    <!-- ════════════════════════════════════════════════════════ -->
+    <section id="panel-compare" class="tab-panel" role="tabpanel">
+      <div class="compare-header">
+        <h2 class="section-title">📊 Algorithm Comparison</h2>
+        <p class="section-desc">See how backtracking with pruning dramatically outperforms brute-force search.</p>
+      </div>
+
+      <div class="compare-controls card">
+        <div class="compare-ctrl-left">
+          <label class="topbar-label">Puzzle</label>
+          <select id="compare-puzzle-select" class="ai-select"></select>
+          <button class="btn btn-ghost btn-sm" id="btn-compare-random">🎲 Random</button>
+        </div>
+        <button class="btn btn-primary" id="btn-run-compare">⚡ Run Comparison</button>
+      </div>
+
+      <div id="compare-results" class="compare-results" style="display:none">
+        <div class="compare-grid">
+          <!-- Backtracking card -->
+          <div class="card compare-card algo-bt">
+            <div class="algo-badge"> Backtracking + Pruning</div>
+            <div class="algo-stat-row">
+              <span class="algo-stat-label">Steps</span>
+              <span class="algo-stat-val" id="cmp-bt-steps">—</span>
+            </div>
+            <div class="algo-stat-row">
+              <span class="algo-stat-label">Time</span>
+              <span class="algo-stat-val" id="cmp-bt-time">—</span>
+            </div>
+            <div class="algo-stat-row">
+              <span class="algo-stat-label">Result</span>
+              <span class="algo-stat-val" id="cmp-bt-result">—</span>
+            </div>
+            <div class="algo-bar-wrap">
+              <div class="algo-bar algo-bar-bt" id="cmp-bt-bar"></div>
+            </div>
+          </div>
+
+          <!-- Brute Force card -->
+          <div class="card compare-card algo-bf">
+            <div class="algo-badge algo-badge-bf">🐌 Brute Force (No Pruning)</div>
+            <div class="algo-stat-row">
+              <span class="algo-stat-label">Steps</span>
+              <span class="algo-stat-val" id="cmp-bf-steps">—</span>
+            </div>
+            <div class="algo-stat-row">
+              <span class="algo-stat-label">Time</span>
+              <span class="algo-stat-val" id="cmp-bf-time">—</span>
+            </div>
+            <div class="algo-stat-row">
+              <span class="algo-stat-label">Result</span>
+              <span class="algo-stat-val" id="cmp-bf-result">—</span>
+            </div>
+            <div class="algo-bar-wrap">
+              <div class="algo-bar algo-bar-bf" id="cmp-bf-bar"></div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Speedup summary -->
+        <div class="card compare-summary" id="compare-summary">
+          <div class="speedup-icon">🚀</div>
+          <div class="speedup-text" id="speedup-text">—</div>
+        </div>
+
+        <!-- Explanation -->
+        <div class="card compare-explain">
+          <div class="card-label">Why the Difference?</div>
+          <div class="explain-grid">
+            <div class="explain-item">
+              <div class="explain-icon">✂️</div>
+              <h4>Pruning</h4>
+              <p>Backtracking checks column constraints after each assignment. If a partial solution already violates a
+                constraint, the entire subtree is eliminated immediately.</p>
+            </div>
+            <div class="explain-item">
+              <div class="explain-icon">🔍</div>
+              <h4>Constraint Propagation</h4>
+              <p>By processing letters column-by-column (right to left), the solver can detect invalid assignments
+                early, before assigning all letters.</p>
+            </div>
+            <div class="explain-item">
+              <div class="explain-icon">🧮</div>
+              <h4>Search Space</h4>
+              <p>With N unique letters, brute force explores up to 10! / (10-N)! combinations. Pruning can reduce this
+                by orders of magnitude.</p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ════════════════════════════════════════════════════════ -->
+    <!--  TAB 4 — AI CONCEPTS                                   -->
+    <!-- ════════════════════════════════════════════════════════ -->
+    <section id="panel-concepts" class="tab-panel" role="tabpanel">
+      <div class="concepts-header">
+        <h2 class="section-title">🎓 AI Concepts Behind Cryptarithmetic</h2>
+        <p class="section-desc">Understand the AI techniques that power the solver.</p>
+      </div>
+
+      <div class="concepts-grid">
+        <div class="card concept-card-full" id="concept-csp">
+          <div class="concept-icon">🧩</div>
+          <h3>Constraint Satisfaction Problem (CSP)</h3>
+          <p>A CSP is defined by:</p>
+          <ul class="concept-list">
+            <li><strong>Variables:</strong> Each unique letter in the puzzle (e.g., S, E, N, D, M, O, R, Y)</li>
+            <li><strong>Domains:</strong> Possible values each variable can take (digits 0–9)</li>
+            <li><strong>Constraints:</strong> The arithmetic equation must hold, each letter maps to a unique digit,
+              leading letters ≠ 0</li>
+          </ul>
+          <div class="concept-example">
+            <strong>Example:</strong> In SEND + MORE = MONEY, we have 8 variables, each with domain {0-9}, and the
+            constraint that
+            <code>1000S + 100E + 10N + D + 1000M + 100O + 10R + E = 10000M + 1000O + 100N + 10E + Y</code>
+          </div>
+        </div>
+
+        <div class="card concept-card-full" id="concept-bt">
+          <div class="concept-icon">🔄</div>
+          <h3>Backtracking Search</h3>
+          <p>A depth-first search algorithm that:</p>
+          <ul class="concept-list">
+            <li>Assigns values to one variable at a time</li>
+            <li>When a dead end is reached (no valid value), it <strong>backtracks</strong> to the previous variable
+            </li>
+            <li>Systematically explores the search tree until a solution is found or all possibilities are exhausted
+            </li>
+          </ul>
+          <div class="concept-highlight">
+            <strong>Time Complexity:</strong> O(d^n) where d = domain size (10) and n = number of variables.
+            Worst case for 8 variables: 10^8 = 100,000,000 combinations!
+          </div>
+        </div>
+
+        <div class="card concept-card-full" id="concept-prune">
+          <div class="concept-icon">✂️</div>
+          <h3>Pruning & Constraint Propagation</h3>
+          <p>Pruning reduces the search space by eliminating branches that cannot lead to a solution:</p>
+          <ul class="concept-list">
+            <li><strong>Column-wise validation:</strong> Check arithmetic constraints column by column as digits are
+              assigned</li>
+            <li><strong>Forward checking:</strong> If assigning a value makes any future variable unsatisfiable, prune
+              immediately</li>
+            <li><strong>Unique digit constraint:</strong> Once a digit is assigned, remove it from all other variables'
+              domains</li>
+          </ul>
+          <div class="concept-highlight">
+            <strong>Impact:</strong> Pruning typically reduces the search space by 90–99%, turning minutes of
+            computation into milliseconds!
+          </div>
+        </div>
+
+        <div class="card concept-card-full" id="concept-agent">
+          <div class="concept-icon">🤖</div>
+          <h3>Systematic Search Agent</h3>
+          <p>The AI solver acts as an intelligent agent with:</p>
+          <ul class="concept-list">
+            <li><strong>State:</strong> The current partial assignment of letters to digits</li>
+            <li><strong>Actions:</strong> Assign a digit to the next unassigned letter, or backtrack</li>
+            <li><strong>Goal:</strong> A complete, valid assignment satisfying all constraints</li>
+            <li><strong>Strategy:</strong> Depth-first search with constraint checking at each step (systematic search)
+            </li>
+          </ul>
+          <div class="concept-example">
+            This solver uses a <strong>right-to-left column ordering</strong> heuristic — assigning letters from the
+            units column first allows earlier constraint detection.
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ════════════════════════════════════════════════════════ -->
+    <!--  TAB 5 — ANALYTICS                                     -->
+    <!-- ════════════════════════════════════════════════════════ -->
+    <section id="panel-stats" class="tab-panel" role="tabpanel">
+      <div class="stats-header">
+        <h2 class="section-title">📈 Performance Analytics</h2>
+        <p class="section-desc">Track your solving progress over time.</p>
+      </div>
+
+      <div class="stats-overview">
+        <div class="card stats-big-card">
+          <div class="big-stat-icon">🏆</div>
+          <div class="big-stat-val" id="stats-total-solved">0</div>
+          <div class="big-stat-label">Total Solved</div>
+        </div>
+        <div class="card stats-big-card">
+          <div class="big-stat-icon">🔥</div>
+          <div class="big-stat-val" id="stats-best-streak">0</div>
+          <div class="big-stat-label">Best Streak</div>
+        </div>
+        <div class="card stats-big-card">
+          <div class="big-stat-icon">⏱</div>
+          <div class="big-stat-val" id="stats-avg-time">--:--</div>
+          <div class="big-stat-label">Avg Solve Time</div>
+        </div>
+        <div class="card stats-big-card">
+          <div class="big-stat-icon">🎯</div>
+          <div class="big-stat-val" id="stats-accuracy">0%</div>
+          <div class="big-stat-label">Accuracy</div>
+        </div>
+      </div>
+
+      <!-- Solve history -->
+      <div class="card stats-history-card">
+        <div class="card-label">Solve History</div>
+        <div class="stats-chart-wrap">
+          <canvas id="stats-chart" width="800" height="200"></canvas>
+        </div>
+        <div id="stats-history-list" class="stats-history-list">
+          <div class="stats-empty">No puzzles solved yet. Start playing to see your stats!</div>
+        </div>
+      </div>
+
+      <div class="stats-actions">
+        <button class="btn btn-ghost" id="btn-clear-stats">🗑 Clear History</button>
+        <button class="btn btn-ghost" id="btn-export-stats">📋 Export Stats</button>
       </div>
     </section>
   </main>
